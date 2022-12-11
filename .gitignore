@@ -1,5 +1,6 @@
 CoronaHack-ChestX-Ray-Dataset/
 COVID-19_Radiography_Dataset/
+shuffledImages/
 __pycache__/
 .ipynb_checkpoints/
 *.ipynb
