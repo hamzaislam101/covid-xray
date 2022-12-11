@@ -1,3 +1,4 @@
+from coronaHackDataLoader import CoronaHackImageDataset
 import torch
 from torchvision import datasets, transforms
 from torchvision import models
@@ -15,6 +16,9 @@ data_transforms = transforms.Compose([
 ])
 
 data = CustomImageDataset("COVID-19_Radiography_Dataset",data_transforms)
+
+#adding test data from CoronaHack-ChestX-Ray-Dataset
+test_data2 = CoronaHackImageDataset("CoronaHack-ChestX-Ray-Dataset/Coronahack-Chest-XRay-Dataset/Coronahack-Chest-XRay-Dataset", "CoronaHack-ChestX-Ray-Dataset/Chest_xray_Corona_Metadata.csv",'test',data_transforms)
 
 # Split the dataset into train, train, and validation sets
 train_size = int(0.7 * len(data))
@@ -73,7 +77,7 @@ optimizer = optim.Adam(model.parameters())
 device = torch.device("mps")
 model.to(device)
 
-def train_model(model, criterion, optimizer, train_loader, val_loader, num_epochs=30):
+def train_model(model, criterion, optimizer, train_loader, val_loader, num_epochs=8):
     for epoch in range(num_epochs):
         # Training phase
         model.train()
