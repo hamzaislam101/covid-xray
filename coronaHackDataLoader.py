@@ -20,12 +20,14 @@ class CoronaHackImageDataset(torch.utils.data.Dataset):
         self.meta_data['Label_2_Virus_category'].fillna('Normal', inplace=True)
         xrayLabels = ['COVID-19', 'Normal', 'Virus']
         #change the values in label_2_Virus_category which are not in labels to 'Other'
-        self.meta_data['Label_2_Virus_category'] = self.meta_data['Label_2_Virus_category'].apply(lambda x: x if x in xrayLabels else 'Other')
+        #self.meta_data['Label_2_Virus_category'] = self.meta_data['Label_2_Virus_category'].apply(lambda x: x if x in xrayLabels else 'Other')
 
         if self.phase == 'train':
             self.meta_data = self.meta_data[self.meta_data['Dataset_type'] == 'TRAIN']
         elif self.phase == 'test':
             self.meta_data = self.meta_data[self.meta_data['Dataset_type'] == 'TEST']
+            #only keep the images with label_2_Virus_category as in xraylabels
+            self.meta_data = self.meta_data[self.meta_data['Label_2_Virus_category'].isin(xrayLabels)]
         else:
             print("Invalid phase. Please enter 'train', 'val', or 'test'")
             return
@@ -46,16 +48,8 @@ class CoronaHackImageDataset(torch.utils.data.Dataset):
         return len(self.img_labels)
     
     def getImageLabelAsInteger(self, label):
-        if label == 'COVID-19':
-            return 0
-        elif label == 'Other':
-            return 1
-        elif label == 'Normal':
-            return 2
-        elif label == 'Virus':
-            return 3
-        else:
-            return -1
+        labels = ['Normal', 'ARDS', 'Virus', 'COVID-19','SARS','bacteria','Streptococcus','Lung_Opacity' ,'Other']
+        return labels.index(label)
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx,1],self.img_labels.iloc[idx, 0])

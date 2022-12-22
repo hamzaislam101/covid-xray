@@ -19,7 +19,7 @@ def shuffleImage(path,number):
     arr = im.load() #pixel data stored in this 2D array
     xres = 299
     yres = 299
-    BLKSZ = 9 #blocksize
+    BLKSZ = 15 #blocksize
     for i in range(2, BLKSZ+1):
         for j in range(int(math.floor(float(xres)/float(i)))):
             for k in range(int(math.floor(float(yres)/float(i)))):
@@ -31,13 +31,19 @@ def shuffleImage(path,number):
 
     #plt.figure(0,figsize = (6, 6))
     #plt.imshow(im,cmap='gray')
-    im.save("shuffledImages/shuffled-"+str(number)+".png")
+    im.save("shuffledTest/shuffled-"+str(number)+".png")
     #plt.show()
 
-os.mkdir("shuffledImages")
+#if folder exists, delete it and contents
+if os.path.exists("shuffledTest"):
+    for filename in os.listdir("shuffledTest"):
+        os.remove("shuffledTest/"+filename)
+    os.rmdir("shuffledTest")
+os.mkdir("shuffledTest")
 x = 1
 for img in os.listdir("COVID-19_Radiography_Dataset/COVID/images"):
-    if x == 100:
+    print(f'image : {x} img : {img}')
+    if x == 4:
         break
     shuffleImage("COVID-19_Radiography_Dataset/COVID/images/" + img,x)
     x += 1

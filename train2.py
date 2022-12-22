@@ -33,27 +33,34 @@ train_data, val_data, test_data = torch.utils.data.random_split(
 )
 
 
+# Split the dataset into train, train, and validation sets
+train_size2 = int(0.85 * len(train_data2))
+val_size2 = len(train_data2) - train_size2
+
+train_data2, val_data2 = torch.utils.data.random_split(
+    train_data2,
+    [train_size2, val_size2]
+)
+
+
 # Define the data loaders
 train_loader = torch.utils.data.DataLoader(
-    train_data,
+    train_data2,
     batch_size=64,
     shuffle=True
 )
 val_loader = torch.utils.data.DataLoader(
-    val_data,
+    val_data2,
     batch_size=64,
     shuffle=False
 )
-
 test_loader = torch.utils.data.DataLoader(
-    test_data,
+    test_data2,
     batch_size=64,
     shuffle=False
 )
-
-
 test_loader2 = torch.utils.data.DataLoader(
-    test_data2,
+    test_data,
     batch_size=64,
     shuffle=False
 )
@@ -67,8 +74,8 @@ writer = SummaryWriter()
 model = models.resnet50(pretrained=True)
 
 # Freeze the weights of the pre-trained model
-# for param in model.parameters():
-#    param.requires_grad = False
+for param in model.parameters():
+    param.requires_grad = False
 
 # Define the additional layers
 model.fc = nn.Sequential(
@@ -81,19 +88,15 @@ model.fc = nn.Sequential(
     nn.Linear(in_features=512, out_features=9)
 )
 
-#write the model structure to tensorboard
-writer.add_graph(model,torch.rand(1,3,224,224))
-
 # Define the loss function and the optimizer
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.AdamW(model.parameters(), lr=0.0001)
-#optimizer = optim.Adam(model.parameters(), lr=0.0001,momentum=0.9)
+optimizer = optim.Adam(model.parameters())
 
 #move the model to the GPU
 device = torch.device("mps")
 model.to(device)
 
-def train_model(model, criterion, optimizer, train_loader, val_loader, num_epochs=4):
+def train_model(model, criterion, optimizer, train_loader, val_loader, num_epochs=8):
     for epoch in range(num_epochs):
         # Training phase
         model.train()
@@ -147,7 +150,6 @@ def train_model(model, criterion, optimizer, train_loader, val_loader, num_epoch
         print(f'Training Loss: {train_loss/len(train_loader.dataset):.4f}')
         print(f'Validation Loss: {val_loss/len(val_loader.dataset):.4f}')
         print(f'Validation Accuracy: {correct/total:.4f}')
-        
 
 # Train the model
 train_model(model, criterion, optimizer, train_loader, val_loader)
@@ -178,8 +180,8 @@ with torch.no_grad():
 print('Test Loss:', test_loss/len(test_loader.dataset))
 print('Test Accuracy:', correct/total)
 
+print('Testing on first test set')
 
-print('testing other data set')
 # Test the trained model
 model.eval()
 test_loss = 0.0
@@ -203,7 +205,7 @@ with torch.no_grad():
         total += labels.size(0)
 
 #save the model
-torch.save(model.state_dict(), 'model.pth')
+torch.save(model.state_dict(), 'model2.pth')
 
 # Print the test statistics
 print('Test Loss:', test_loss/len(test_loader.dataset))

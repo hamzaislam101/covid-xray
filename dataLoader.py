@@ -8,17 +8,18 @@ class CustomImageDataset(torch.utils.data.Dataset):
 
         #this is for the COVID-19 Radiography Dataset
         #read the four label folders for the images and the labels
-        labels = ['COVID', 'Lung_Opacity', 'Normal', 'Viral Pneumonia']
+        labels = ['COVID', 'Lung_Opacity', 'Normal', 'Viral Pneumonia','Other']
         self.img_labels = pd.DataFrame(columns=['image', 'label'])
         for label in labels:
             path = os.path.join(img_dir, label)
             path = os.path.join(path, 'images')
             for img in os.listdir(path):
-                if self.img_labels.empty:
-                    self.img_labels = pd.DataFrame([[os.path.join(label+"/images", img), label]],columns=['image', 'label'])
-                else:
-                    imageLabel = pd.DataFrame([[os.path.join(label+"/images", img), label]],columns=['image', 'label'])
-                    self.img_labels = pd.concat([self.img_labels,imageLabel], ignore_index=True)
+                if img.endswith(".png") or img.endswith(".jpg"):
+                    if self.img_labels.empty:
+                        self.img_labels = pd.DataFrame([[os.path.join(label+"/images", img), label]],columns=['image', 'label'])
+                    else:
+                        imageLabel = pd.DataFrame([[os.path.join(label+"/images", img), label]],columns=['image', 'label'])
+                        self.img_labels = pd.concat([self.img_labels,imageLabel], ignore_index=True)
 
         self.img_dir = img_dir
         self.transform = transform
@@ -28,16 +29,8 @@ class CustomImageDataset(torch.utils.data.Dataset):
         return len(self.img_labels)
     
     def getImageLabelAsInteger(self, label):
-        if label == 'COVID':
-            return 0
-        elif label == 'Lung_Opacity':
-            return 1
-        elif label == 'Normal':
-            return 2
-        elif label == 'Viral Pneumonia':
-            return 3
-        else:
-            return -1
+        labels = ['Normal','ARDS','Viral Pneumonia','COVID', 'SARS','bacteria','Streptococcus','Lung_Opacity' ,'Other']
+        return labels.index(label)
 
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
